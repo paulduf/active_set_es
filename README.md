@@ -6,15 +6,20 @@ The active constraints are detected from the nonzero values of the Lagrange mult
 
 ## Use the algorithm
 
-The Python code implements a `ActiveSetElitistES` class. The algorithm assume explicit constraints, which means the user must provide the constraints and constraints jacobian functions as callables to the class object. You can run the algorithm with an ask-and-tell interface (see also the `__main__` part of the python script for an example).
+The Python code implements a `ActiveSetElitistES` class. The algorithm assume explicit constraints, which means the user must provide the constraints and constraints jacobian functions as callables to the class object. The algorithm provides an ask-and-tell interface (see also the `__main__` part of the python script for an example).
 
-![plot_active_set_elitist_es_on_sphere.png]
+Running the algorithm for 500 iterations gives the following picture which agrees with the paper's numerical experiment.
+
+![](figures/plot_active_set_elitist_es_on_sphere.png)
+
+You can generate this figure calling the main script `python -m actseteles.active_set_elitist_es`.
 
 ## References
 
 Arnold, D.V. (2016) *‘An Active-Set Evolution Strategy for Optimization with Known Constraints’*, in Handl, J. et al. (eds) Parallel Problem Solving from Nature – PPSN XIV. Cham: Springer International Publishing (Lecture Notes in Computer Science), pp. 192–202. doi:10.1007/978-3-319-45823-6_18.
 
+## TODOs
+
 This is work in progress, in the future I plan to implement the feature following from this paper:
 
 Arnold, D.V. (2017) *‘Reconsidering constraint release for active-set evolution strategies’*, in Proceedings of the Genetic and Evolutionary Computation Conference. GECCO ’17: Genetic and Evolutionary Computation Conference, Berlin Germany: ACM, pp. 665–672. doi:10.1145/3071178.3071294.
-# active_set_es
