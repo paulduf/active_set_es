@@ -23,3 +23,7 @@ Arnold, D.V. (2016) *‘An Active-Set Evolution Strategy for Optimization with K
 This is work in progress, in the future I plan to implement the feature following from this paper:
 
 Arnold, D.V. (2017) *‘Reconsidering constraint release for active-set evolution strategies’*, in Proceedings of the Genetic and Evolutionary Computation Conference. GECCO ’17: Genetic and Evolutionary Computation Conference, Berlin Germany: ACM, pp. 665–672. doi:10.1145/3071178.3071294.
+
+### other TODOs
+ - Write the docstring for `ActiveSetElitistES`
+ - Describe parameters in the `__init__` method
