@@ -58,6 +58,16 @@ class ActiveSetElitistES:
         self.p = .2
         self.eps_cons = 1e-8
 
+        # SLSQP parameters
+        self.slsqp_options = {
+            "iter": 100 * self.dimension,
+            "acc": 1e-6,  # as in the paper for fmincon
+                          # but is it the same meaning ?
+                          # is self.sigma / 10,  # it this a good idea ?
+            "full_output": True,
+            "disp": False,
+        }
+
         # Stopping parameters
         self.iteration_counter = 0
         self.tolfun = 1e-11
@@ -133,13 +143,6 @@ class ActiveSetElitistES:
         def grad_distance(w):
             return grad_sphere(w - y)
 
-        slsqp_options = {
-            "iter": 100 * self.dimension,
-            "acc": self.sigma / 10,  # it this a good idea ?
-            "full_output": True,
-            "disp": False,
-        }
-
         if reduced_search_space:
             self.eqset = self.active_set
         else:
@@ -152,7 +155,7 @@ class ActiveSetElitistES:
             fprime=grad_distance,
             fprime_eqcons=self.grad_eqc if self.m_eq > 0 else None,
             fprime_ieqcons=self.grad_ieqc if self.m_eq < self.m else None,
-            **slsqp_options
+            **self.slsqp_options
         )
         if res.status != 0:
             warnings.warn(f"SLSQP exit with {res.message}")
