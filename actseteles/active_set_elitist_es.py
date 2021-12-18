@@ -19,16 +19,6 @@ def arrayize(func):
     return wrapper
 
 
-def shadow_func(cond, f):
-    """
-    Returns f if cond is True, else None
-    Useful in the slsqp interface if active set if full or empty
-    """
-    if cond:
-        return f
-    return None
-
-
 @arrayize
 def sphere(x):
     return np.sum(x**2)
