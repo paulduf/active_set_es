@@ -83,10 +83,12 @@ class ActiveSetElitistES:
         return len(self.eqset)
 
     def constraints(self, x):
+        """Returns the vector of m constraints values at x"""
         return np.asarray(
             [c(x) for c in self.constraints_list])
 
     def grad_constraints(self, x):
+        """Returns the Jacobian matrix with m row and n columns"""
         return np.asarray(
             [gc(x) for gc in self.grad_constraints_list])
 
@@ -158,7 +160,7 @@ class ActiveSetElitistES:
 
     def ask(self):
         # Check reduced subspace
-        A = self.grad_constraints(self.x)
+        A = self.grad_constraints(self.x).T  # now n rows, m columns
         A = A[:, list(self.active_set)]
         if A.size > 0:
             self.n_ = self.dimension - np.linalg.matrix_rank(A)
