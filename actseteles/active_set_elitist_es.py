@@ -1,6 +1,7 @@
 """
 """
 from functools import wraps
+from random import sample
 import warnings
 import numpy as np
 import pandas as pd
@@ -29,13 +30,32 @@ def grad_sphere(x):
     return 2 * x
 
 
-class ActiveSetElitistES:
+def ffd(func, x, eps, fx=None):
     """
+    Forward-mode Finite Differences
+    """
+    if fx is None:
+        fx = func(x)
+    X = np.eye(len(x)) * eps + x
+    fex = np.asarray(list(map(func, X)))
+    return (fex - fx) / eps
+
+
+class ActiveSetElitistES:
+    """(1+1)-ES with Active Set repair CHT, in an Ask-and-Tell interface
     """
 
-    def __init__(
-        self, x0, fx0, sigma0, constraints_list, grad_constraints_list,
-        logging=True, display=True):
+    @staticmethod
+    def ffd_gradient_list(constraints_list, eps=1e-10):
+        grad_constraints_list = []
+        for j in range(len(constraints_list)):
+            grad_constraints_list.append(
+                lambda x, j=j: ffd(constraints_list[j], x, eps))
+        return grad_constraints_list
+
+    def __init__(self, x0, fx0, sigma0, constraints_list,
+                 grad_constraints_list=None,
+                 logging=True, display=True):
         """Ask-and-tell interface for the active-set (1+1)-ES
 
         constraints_list is a list of callable constraint functions
@@ -43,7 +63,10 @@ class ActiveSetElitistES:
         """
         self.x0 = x0
         self.constraints_list = constraints_list
-        self.grad_constraints_list = grad_constraints_list
+        if grad_constraints_list is None:
+            self.grad_constraints_list = self.ffd_gradient_list(constraints_list)
+        else:
+            self.grad_constraints_list = grad_constraints_list
         self.J = set(range(self.m))
         self.active_set = set()
         self.eqset = set()
@@ -145,6 +168,12 @@ class ActiveSetElitistES:
 
         if reduced_search_space:
             self.eqset = self.active_set
+            if len(self.eqset) > self.dimension:
+                warnings.warn("len(eqset) greater than dimension, \
+                               select a random subset")
+                for i in range(len(self.eqset) - self.dimension):
+                    self.eqset.remove(sample(self.eqset, 1)[0])
+
         else:
             self.eqset = set()
 
@@ -272,6 +301,7 @@ if __name__ == "__main__":
     dimension = 10
     m = 5
 
+    print("Test with gradient")
     cl, gcl = make_constraints_list(m, dimension)
     x0 = np.ones(dimension) * dimension
     es = ActiveSetElitistES(x0, sphere(x0), 1, cl, gcl)
@@ -282,3 +312,11 @@ if __name__ == "__main__":
         es.tell(y, fy)
 
     es.plot()
+
+    print("Test without gradient")
+    es = ActiveSetElitistES(x0, sphere(x0), 1, cl)
+
+    while not es.stop():
+        y = es.ask()
+        fy = sphere(y)
+        es.tell(y, fy)
