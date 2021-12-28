@@ -280,7 +280,7 @@ class ActiveSetElitistES:
         }
 
         plt.semilogy(self.rundata.index, self.rundata["fx"] - self.m,
-                     c="blue", label="$f(x)$", **plot_options)
+                     c="blue", label="$f(x) - f^\star$", **plot_options)
         plt.semilogy(self.rundata.index, self.rundata["sigma"],
                      c="orange", label="$\sigma$", **plot_options)
         plt.scatter(index_suspended,
