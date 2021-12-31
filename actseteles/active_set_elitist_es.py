@@ -178,7 +178,7 @@ class ActiveSetElitistES:
             self.eqset = set()
 
         res = fmin_slsqp(
-            distance, self.x0,
+            distance, y,
             f_eqcons=self.eqconstraints if self.m_eq > 0 else None,
             f_ieqcons=self.ieqconstraints if self.m_eq < self.m else None,
             fprime=grad_distance,
@@ -267,7 +267,9 @@ class ActiveSetElitistES:
             stopdict["tolfun"] = dfx
         return stopdict
 
-    def plot(self):
+    def plot(self, fmin=None, suptitle=None, savefig=False):
+        if fmin is None:
+            fmin = 0
         if not self.log:
             raise ValueError("Nothing to plot")
 
@@ -279,20 +281,29 @@ class ActiveSetElitistES:
             "lw": 1,
         }
 
-        plt.semilogy(self.rundata.index, self.rundata["fx"] - self.m,
+        plt.semilogy(self.rundata.index, self.rundata["fx"] - fmin,
                      c="blue", label="$f(x) - f^\star$", **plot_options)
         plt.semilogy(self.rundata.index, self.rundata["sigma"],
                      c="orange", label="$\sigma$", **plot_options)
         plt.scatter(index_suspended,
-                    self.rundata["fx"].iloc[index_suspended] - self.m,
+                    self.rundata["fx"].iloc[index_suspended] - fmin,
                     marker="o", s=10, facecolors="none", edgecolors="orange",
                     lw=.8, label="$n' >0, \kappa = 1$")
         plt.xlabel("Iteration number")
         plt.grid(True)
         plt.legend()
-        plt.title(f"Trajectory of the active-set (1+1)-ES\
-                  \nSphere problem, n={self.dimension}, m={self.m}")
-        plt.savefig("figures/plot_active_set_elitist_es_on_sphere.pdf", format="pdf")
+        title = "Trajectory of the active-set (1+1)-ES"
+        if suptitle is not None:
+            title += "\n" + suptitle
+        plt.title(title)
+        if savefig:
+            if savefig is True:
+                filename = "plot_active_set_elitist_es.pdf"
+            elif isinstance(savefig, str):
+                filename = savefig
+            else:
+                raise ValueError("savefig is not True nor a string")
+            plt.savefig("figures/" + filename, format="pdf")
 
 
 if __name__ == "__main__":
@@ -311,7 +322,9 @@ if __name__ == "__main__":
         fy = sphere(y)
         es.tell(y, fy)
 
-    es.plot()
+    es.plot(fmin=m,
+            suptitle=f"Sphere problem, n={dimension}, m={m}",
+            savefig="plot_active_set_elitist_es_on_sphere.pdf")
 
     print("Test without gradient")
     es = ActiveSetElitistES(x0, sphere(x0), 1, cl)
